@@ -1,16 +1,15 @@
-import apiClient from "./client";
+import unauthenticatedClient from './unauthenticatedClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createUser = async (userData) => {
   try {
-    const response = await apiClient.post('/user_profile', userData);
-    console.log('createUser response:', response.data)
+    const response = await unauthenticatedClient.post('/user_profile', userData);
+    console.log('createUser response:', response.data);
     return response.data;
   } catch (error) {
     if (error.response) {
-      // Server responded with a status code outside of 2xx
       console.error('Error creating user:', error.response.data);
     } else {
-      // Network error or other issue
       console.error('Error creating user:', error.message);
     }
     throw error;
@@ -19,8 +18,12 @@ export const createUser = async (userData) => {
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await apiClient.post('/auth', { email, password });
-    console.log('createUser response:', response.data)
+    const response = await unauthenticatedClient.post('/auth', { email, password });
+    console.log('loginUser response:', response.data);
+
+    // Save the token to AsyncStorage upon successful login
+    await AsyncStorage.setItem('authToken', response.data.token);
+
     return response.data;
   } catch (error) {
     if (error.response) {

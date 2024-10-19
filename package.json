@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install-all": "npm install --prefix nodejs_core && npm install --prefix pinded",
-    "start": "npm --prefix pinded run start",
-    "start-localdev": "concurrently --raw \"npm run start-local --prefix nodejs_core\" \"npm --prefix pinded run start-localdev\"",
-    "start-frontend": "concurrently -k \"cd pinded && npx expo start\"",
-    "start-backend": "npm run start-local --prefix nodejs_core",
+    "install-all": "npm install --prefix backend && npm install --prefix frontend",
+    "start": "npm --prefix frontend run start",
+    "start-localdev": "concurrently --raw \"npm run start-local --prefix backend\" \"npm --prefix frontend run start-localdev\"",
+    "start-frontend": "concurrently -k \"cd frontend && npx expo start\"",
+    "start-backend": "npm run start-local --prefix backend",
     "start-local": "nodemon index.js"
   },
   "devDependencies": {

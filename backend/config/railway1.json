@@ -1,0 +1,17 @@
+{
+    "server":{
+        "host":"0.0.0.0",
+        "port":3000
+    },
+    "corsOptions": {
+        "origins":["http:localhost:3001"],
+        "default":"https://api.pinded.com"
+    },
+    "pathRoot":"/v1",
+    "noauthPath":"/noav1",
+    "connectionString":"mongodb+srv://pindedAdmin:see8Koxe2013mongo@pindeddev.qtjlki1.mongodb.net/",
+    "jwtSecretKey":"some_secret_key_that_I'm_too_lazy_to_think-up_1244@",
+    "tokenHeaderKey":"another_secret_that_I_can't_think_up_656!!",
+    "saltRounds": 6,
+    "hashPW": "this_is_another_secret_that_I_can't_be_bothered_to_generate_HH6492!"
+}
