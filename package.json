@@ -1,0 +1,17 @@
+{
+  "name": "pindedmono",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install --prefix nodejs_core && npm install --prefix pinded",
+    "start": "npm --prefix pinded run start",
+    "start-localdev": "concurrently --raw \"npm run start-local --prefix nodejs_core\" \"npm --prefix pinded run start-localdev\"",
+    "start-frontend": "concurrently -k \"cd pinded && npx expo start\"",
+    "start-backend": "npm run start-local --prefix nodejs_core",
+    "start-local": "nodemon index.js"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "cross-env": "^7.0.3"
+  }
+}

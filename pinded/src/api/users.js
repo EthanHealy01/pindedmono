@@ -3,6 +3,7 @@ import apiClient from "./client";
 export const createUser = async (userData) => {
   try {
     const response = await apiClient.post('/user_profile', userData);
+    console.log('createUser response:', response.data)
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -17,10 +18,9 @@ export const createUser = async (userData) => {
 };
 
 export const loginUser = async (email, password) => {
-  console.log('email:', email);
-  console.log('password:', password);
   try {
     const response = await apiClient.post('/auth', { email, password });
+    console.log('createUser response:', response.data)
     return response.data;
   } catch (error) {
     if (error.response) {

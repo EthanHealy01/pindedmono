@@ -1,11 +1,16 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+
+const API_HOST = Constants.expoConfig.extra.API_HOST;
+
+console.log('API_HOST:', API_HOST);
 
 const apiClient = axios.create({
-  baseURL: `https://nodejscore-railway1.up.railway.app/v1`,
+  baseURL: `${API_HOST}/v1`,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 apiClient.interceptors.request.use(
