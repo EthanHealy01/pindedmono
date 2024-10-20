@@ -3,12 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createUser = async (userData) => {
   try {
-    const response = await unauthenticatedClient.post('/user_profile', userData);
+    const response = await unauthenticatedClient.post('/auth/create', userData);
     console.log('createUser response:', response.data);
     return response.data;
   } catch (error) {
     if (error.response) {
       console.error('Error creating user:', error.response.data);
+      console.error('Status:', error.response.status);
+      console.error('Headers:', error.response.headers);
     } else {
       console.error('Error creating user:', error.message);
     }
@@ -16,7 +18,9 @@ export const createUser = async (userData) => {
   }
 };
 
+
 export const loginUser = async (email, password) => {
+  console.log(email, password);
   try {
     const response = await unauthenticatedClient.post('/auth', { email, password });
     console.log('loginUser response:', response.data);

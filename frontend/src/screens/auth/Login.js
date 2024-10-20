@@ -2,24 +2,23 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from '../../api/users';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from "react-native-paper";
 
-const Login = ({ navigation }) => {
+const Login = ({ setIsAuthenticated }) => {
+  const navigation = useNavigation(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const theme = useTheme();
 
   const handleLogin = async () => {
     try {
       const response = await loginUser(email, password);
       console.log('Login successful:', response);
-
-      // Store the token in AsyncStorage
+    
       await AsyncStorage.setItem('authToken', response.token);
-
-      // Set authentication state (if you have a global auth state)
-      // Example: setIsAuthenticated(true);
-
-      // Navigate to the Map screen after successful login
-      navigation.navigate('Map');
+      
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Login failed:', error);
       Alert.alert('Login Error', 'Invalid email or password');

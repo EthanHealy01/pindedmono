@@ -1,28 +1,16 @@
-import { Text, View } from "react-native";
-
+import React, { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import { useTheme } from '../../styles/ThemeContext';
 
 const HomeScreen = () => {
-    return (
-        <View style={styles.container}>
-        <Text style={styles.title}>Welcome to PindedMono!</Text>
-        <Text style={styles.subtitle}>Your one-stop shop for all things mono.</Text>
-        </View>
-    );
-}
-const styles = {
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 18,
-    },
+    const { styles } = useTheme();
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Welcome to PindedMono!</Text>
+      <Text style={styles.text}>Your one-stop shop for all things mono.</Text>
+    </View>
+  );
 };
 
 export default HomeScreen;

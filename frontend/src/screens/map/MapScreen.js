@@ -1,27 +1,64 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, ActivityIndicator, Button, Text } from "react-native";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Button,
+  Text,
+  Platform,
+} from "react-native";
 import MapView, { Marker, UrlTile } from "react-native-maps";
 import { getProvidersByLocation } from "../../api/providers";
+import { useTheme } from "../../styles/ThemeContext";
+import { useColorScheme } from "react-native";
 
 const MapScreen = () => {
-  const [region, setRegion] = useState({
-    latitude: 54.2250, // Belmullet area
-    longitude: -9.9820,
+  const { theme } = useTheme(); // 'light', 'dark', or 'system'
+  const colorScheme = useColorScheme(); // 'light' or 'dark'
+
+  const currentTheme = useMemo(
+    () => (theme === "system" ? colorScheme : theme),
+    [theme, colorScheme]
+  );
+
+  const [initialRegion] = useState({
+    latitude: 54.225, // Belmullet area
+    longitude: -9.982,
     latitudeDelta: 0.1,
     longitudeDelta: 0.1,
   });
-  const [searchRegion, setSearchRegion] = useState(region); // Region used for fetching data
-  const [providers, setProviders] = useState([]); // State for providers
-  const [loading, setLoading] = useState(true); // Loading state
-  const [showSearchButton, setShowSearchButton] = useState(false); // Show "Search this area" button
-  const mapRef = useRef(null);
 
-  // Fetch providers based on the current search region
+  const [searchRegion, setSearchRegion] = useState(initialRegion);
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showSearchButton, setShowSearchButton] = useState(false);
+  const mapRef = useRef(null);
+  const regionRef = useRef(initialRegion);
+
+  const lightTileUrl = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const darkTileUrl =
+    "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
+
+  const tileUrlTemplate = useMemo(
+    () => (currentTheme === "dark" ? darkTileUrl : lightTileUrl),
+    [currentTheme]
+  );
+
+  // Debugging logs (You can remove these if they are no longer needed)
+  console.log("Theme from context:", theme);
+  console.log("System color scheme:", colorScheme);
+  console.log("Current theme used:", currentTheme);
+  console.log("Tile URL Template:", tileUrlTemplate);
+
   const fetchProviders = async () => {
     try {
       setLoading(true);
-      const data = await getProvidersByLocation(searchRegion.latitude, searchRegion.longitude, 10);
-      setProviders(data); // Set providers data
+      const data = await getProvidersByLocation(
+        searchRegion.latitude,
+        searchRegion.longitude,
+        10
+      );
+      setProviders(data);
     } catch (error) {
       console.error("Error fetching providers:", error);
     } finally {
@@ -30,36 +67,47 @@ const MapScreen = () => {
   };
 
   useEffect(() => {
-    fetchProviders(); // Fetch providers when the component loads
+    fetchProviders();
   }, []);
 
-  // Update the region state without triggering a fetch
-  const handleRegionChange = (newRegion) => {
-    setRegion(newRegion);
-    setShowSearchButton(true); // Show "Search this area" button when region changes
-  };
+  const handleRegionChange = useCallback((newRegion) => {
+    regionRef.current = newRegion;
+    setShowSearchButton(true);
+  }, []);
 
-  // Trigger a search for the current region
   const handleSearchArea = () => {
-    setSearchRegion(region); // Update the search region to the current region
-    setShowSearchButton(false); // Hide the search button
-    fetchProviders(); // Fetch providers for the new region
+    setSearchRegion(regionRef.current);
+    setShowSearchButton(false);
+    fetchProviders();
   };
 
-  // Render a Marker for each provider
-  const renderProviderMarker = (provider) => {
-    return (
-      <Marker
-        key={provider._id}
-        coordinate={{
-          latitude: parseFloat(provider.location.coordinates[1]),
-          longitude: parseFloat(provider.location.coordinates[0]),
-        }}
-        title={provider.name}
-        description={provider.description}
+  const renderProviderMarker = (provider) => (
+    <Marker
+      key={provider._id}
+      coordinate={{
+        latitude: parseFloat(provider.location.coordinates[1]),
+        longitude: parseFloat(provider.location.coordinates[0]),
+      }}
+      title={provider.name}
+      description={provider.description}
+    />
+  );
+
+  // Memoized UrlTile to prevent re-renders
+  const memoizedUrlTile = useMemo(
+    () => (
+      <UrlTile
+        urlTemplate={tileUrlTemplate}
+        maximumZ={19}
+        flipY={false}
+        tileCachePath={
+          Platform.OS === "android" ? "tile_cache" : "tile_cache"
+        }
+        tileCacheMaxAge={1000 * 60 * 60 * 24}
       />
-    );
-  };
+    ),
+    [tileUrlTemplate]
+  );
 
   if (loading) {
     return (
@@ -73,18 +121,22 @@ const MapScreen = () => {
     <View style={styles.container}>
       <MapView
         ref={mapRef}
-        style={styles.map}
-        region={region}
+        style={[
+          styles.map,
+          {
+            backgroundColor:
+              currentTheme === "dark" ? "#000000" : "#FFFFFF",
+          },
+        ]}
+        initialRegion={initialRegion}
         onRegionChangeComplete={handleRegionChange}
         showsUserLocation={true}
         mapType="none"
       >
-        <UrlTile
-          urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maximumZ={19}
-        />
+        {memoizedUrlTile}
         {providers.map((provider) => renderProviderMarker(provider))}
       </MapView>
+
       {showSearchButton && (
         <View style={styles.searchButtonContainer}>
           <Button title="Search this area" onPress={handleSearchArea} />
@@ -101,7 +153,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,

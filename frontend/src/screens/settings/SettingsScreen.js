@@ -1,44 +1,73 @@
-// screens/settings/SettingsScreen.js
-import React from 'react';
-import { Button, Text, View, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Button, TouchableOpacity, Text } from 'react-native';
+import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../styles/ThemeContext';
 
 const SettingsScreen = ({ setIsAuthenticated }) => {
-  const navigation = useNavigation();
+  const { theme, changeTheme, styles } = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState(theme);
 
-  const logoutUser = async () => {
-    try {
-      await AsyncStorage.removeItem('authToken');
-      setIsAuthenticated(false);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      });
-      Alert.alert('Logged Out', 'You have successfully logged out.');
-    } catch (error) {
-      console.error('Failed to logout:', error);
-      Alert.alert('Logout Failed', 'Something went wrong during logout.');
-    }
+  const handleThemeChange = (newTheme) => {
+    setSelectedTheme(newTheme);
+    changeTheme(newTheme);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('authToken');
+    setIsAuthenticated(false);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Settings Screen</Text>
-      <Button onPress={logoutUser} title="Logout" />
+      <Text style={[localStyle.title, styles.text]}>Theme Settings</Text>
+      <RadioButton.Group onValueChange={handleThemeChange} value={selectedTheme}>
+        {/* Custom Radio Button for 'System Default' */}
+        <TouchableOpacity
+          onPress={() => handleThemeChange('system')}
+          style={localStyle.radioButtonContainer}
+        >
+          <RadioButton value="system" />
+          <Text style={styles.text}>System Default</Text>
+        </TouchableOpacity>
+
+        {/* Custom Radio Button for 'Light Mode' */}
+        <TouchableOpacity
+          onPress={() => handleThemeChange('light')}
+          style={localStyle.radioButtonContainer}
+        >
+          <RadioButton value="light" />
+          <Text style={styles.text}>Light Mode</Text>
+        </TouchableOpacity>
+
+        {/* Custom Radio Button for 'Dark Mode' */}
+        <TouchableOpacity
+          onPress={() => handleThemeChange('dark')}
+          style={localStyle.radioButtonContainer}
+        >
+          <RadioButton value="dark" />
+          <Text style={styles.text}>Dark Mode</Text>
+        </TouchableOpacity>
+      </RadioButton.Group>
+
+      <Button
+        title="Logout"
+        onPress={handleLogout}
+      />
     </View>
   );
 };
 
-const styles = {
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
+export default SettingsScreen;
+
+const localStyle = {
+  title: {
     fontSize: 24,
+    marginBottom: 16,
+  },
+  radioButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
 };
-
-export default SettingsScreen;

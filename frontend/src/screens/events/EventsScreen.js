@@ -18,27 +18,6 @@ const EventsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     // Request permission to access location
-  //     let { status } = await Location.requestForegroundPermissionsAsync();
-  //     if (status !== "granted") {
-  //       console.error("Permission to access location was denied");
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     // Get the user's current location
-  //     let location = await Location.getCurrentPositionAsync({});
-  //     setUserLocation(location.coords);
-
-  //     // Simulate fetching events data (this would typically be an API call)
-  //     setEvents(sampleEventsData);
-  //     setFilteredEvents(sampleEventsData);
-  //     setLoading(false);
-  //   })();
-  // }, []);
-
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (query === "") {
