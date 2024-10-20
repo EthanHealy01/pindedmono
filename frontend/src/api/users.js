@@ -20,7 +20,6 @@ export const createUser = async (userData) => {
 
 
 export const loginUser = async (email, password) => {
-  console.log(email, password);
   try {
     const response = await unauthenticatedClient.post('/auth', { email, password });
     console.log('loginUser response:', response.data);

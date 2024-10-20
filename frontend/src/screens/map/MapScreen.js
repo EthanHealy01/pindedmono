@@ -1,50 +1,40 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
   ActivityIndicator,
   Button,
   Text,
-  Platform,
 } from "react-native";
-import MapView, { Marker, UrlTile } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { getProvidersByLocation } from "../../api/providers";
 import { useTheme } from "../../styles/ThemeContext";
 import { useColorScheme } from "react-native";
+import darkMapStyle from "../../styles/map/darkMapStyle.json";
 
 const MapScreen = () => {
-  const { theme } = useTheme(); // 'light', 'dark', or 'system'
-  const colorScheme = useColorScheme(); // 'light' or 'dark'
+  const { theme } = useTheme(); 
+  const colorScheme = useColorScheme();
+  const currentTheme = theme === "system" ? colorScheme : theme;
 
-  const currentTheme = useMemo(
-    () => (theme === "system" ? colorScheme : theme),
-    [theme, colorScheme]
-  );
-
-  const [initialRegion] = useState({
+  const [region, setRegion] = useState({
     latitude: 54.225, // Belmullet area
     longitude: -9.982,
     latitudeDelta: 0.1,
     longitudeDelta: 0.1,
   });
-
-  const [searchRegion, setSearchRegion] = useState(initialRegion);
+  const [searchRegion, setSearchRegion] = useState(region);
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSearchButton, setShowSearchButton] = useState(false);
   const mapRef = useRef(null);
-  const regionRef = useRef(initialRegion);
 
-  const lightTileUrl = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const darkTileUrl =
-    "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
-
-  const tileUrlTemplate = useMemo(
-    () => (currentTheme === "dark" ? darkTileUrl : lightTileUrl),
-    [currentTheme]
-  );
-
-  // Debugging logs (You can remove these if they are no longer needed)
+  const lightTileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const darkTileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
+  
+  const tileUrlTemplate = currentTheme === "dark" ? darkTileUrl : lightTileUrl;
+  
+  // Debugging logs
   console.log("Theme from context:", theme);
   console.log("System color scheme:", colorScheme);
   console.log("Current theme used:", currentTheme);
@@ -70,44 +60,30 @@ const MapScreen = () => {
     fetchProviders();
   }, []);
 
-  const handleRegionChange = useCallback((newRegion) => {
-    regionRef.current = newRegion;
+  const handleRegionChange = (newRegion) => {
+    setRegion(newRegion);
     setShowSearchButton(true);
-  }, []);
+  };
 
   const handleSearchArea = () => {
-    setSearchRegion(regionRef.current);
+    setSearchRegion(region);
     setShowSearchButton(false);
     fetchProviders();
   };
 
-  const renderProviderMarker = (provider) => (
-    <Marker
-      key={provider._id}
-      coordinate={{
-        latitude: parseFloat(provider.location.coordinates[1]),
-        longitude: parseFloat(provider.location.coordinates[0]),
-      }}
-      title={provider.name}
-      description={provider.description}
-    />
-  );
-
-  // Memoized UrlTile to prevent re-renders
-  const memoizedUrlTile = useMemo(
-    () => (
-      <UrlTile
-        urlTemplate={tileUrlTemplate}
-        maximumZ={19}
-        flipY={false}
-        tileCachePath={
-          Platform.OS === "android" ? "tile_cache" : "tile_cache"
-        }
-        tileCacheMaxAge={1000 * 60 * 60 * 24}
+  const renderProviderMarker = (provider) => {
+    return (
+      <Marker
+        key={provider._id}
+        coordinate={{
+          latitude: parseFloat(provider.location.coordinates[1]),
+          longitude: parseFloat(provider.location.coordinates[0]),
+        }}
+        title={provider.name}
+        description={provider.description}
       />
-    ),
-    [tileUrlTemplate]
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -120,20 +96,14 @@ const MapScreen = () => {
   return (
     <View style={styles.container}>
       <MapView
+        provider={PROVIDER_GOOGLE}
         ref={mapRef}
-        style={[
-          styles.map,
-          {
-            backgroundColor:
-              currentTheme === "dark" ? "#000000" : "#FFFFFF",
-          },
-        ]}
-        initialRegion={initialRegion}
+        style={styles.map}
+        region={region}
         onRegionChangeComplete={handleRegionChange}
         showsUserLocation={true}
-        mapType="none"
+        customMapStyle={currentTheme === "dark" ? darkMapStyle : []}
       >
-        {memoizedUrlTile}
         {providers.map((provider) => renderProviderMarker(provider))}
       </MapView>
 
@@ -153,11 +123,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   map: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
-    bottom: 0,
+    bottom: 0
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
