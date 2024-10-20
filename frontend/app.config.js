@@ -8,11 +8,16 @@ export default ({ config }) => {
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
-    userInterfaceStyle: 'light',
+    userInterfaceStyle: 'automatic',
     splash: {
-      image: './assets/splash.png',
+      image: './assets/splash-light.png',
       resizeMode: 'contain',
       backgroundColor: '#ffffff',
+      dark: {
+        image: './assets/splash-dark.png',
+        resizeMode: 'contain',
+        backgroundColor: '#081D2A',
+      },
     },
     ios: {
       ...config.ios,

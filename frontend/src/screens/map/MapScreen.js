@@ -5,8 +5,9 @@ import {
   ActivityIndicator,
   Button,
   Text,
+  Platform,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_APPLE } from "react-native-maps";
 import { getProvidersByLocation } from "../../api/providers";
 import { useTheme } from "../../styles/ThemeContext";
 import { useColorScheme } from "react-native";
@@ -96,7 +97,7 @@ const MapScreen = () => {
   return (
     <View style={styles.container}>
       <MapView
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS === "ios" ? PROVIDER_APPLE : PROVIDER_GOOGLE}
         ref={mapRef}
         style={styles.map}
         region={region}

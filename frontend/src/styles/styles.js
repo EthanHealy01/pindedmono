@@ -20,7 +20,7 @@ export const lightModeStyles = {
 export const darkModeStyles = {
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#081D2A',
   },
   text: {
     color: '#FFFFFF',
