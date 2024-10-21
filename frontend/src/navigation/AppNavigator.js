@@ -130,13 +130,18 @@ export default function AppNavigator() {
             />
             <Drawer.Screen
               name="Profile"
-              component={ProfileScreen}
               options={{
                 drawerIcon: ({ color, size }) => (
                   <Feather name="user" size={size} color={color} />
                 ),
               }}
-            />
+            >
+              {() => (
+                <ProfileScreen
+                  setIsAuthenticated={setIsAuthenticated}
+                />
+              )}
+            </Drawer.Screen>
             <Drawer.Screen
               name="Settings"
               options={{

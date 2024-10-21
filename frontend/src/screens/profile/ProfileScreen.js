@@ -6,7 +6,7 @@ import { getUser } from '../../api/users';
 import { useTheme } from '../../styles/ThemeContext';
 import image from '../../navigation/samplePFP.png';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({setIsAuthenticated}) => {
   const navigation = useNavigation();
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +101,10 @@ const ProfileScreen = () => {
             style={[styles.card, localStyles.logoutButton, { marginBottom:20}]}
             onPress={() => {
               AsyncStorage.clear();
-              navigation.navigate('Login');
+              AsyncStorage.removeItem('userInfo');
+              AsyncStorage.removeItem('token');
+              setIsAuthenticated(false);
+
             }}
           >
             <Text style={[styles.text, { color: theme === 'dark' ? '#FF6347' : '#D32F2F' }]}>Log Out</Text>
