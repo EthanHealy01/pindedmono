@@ -1,5 +1,5 @@
-// AppNavigator.js
 import React, { useState, useEffect } from "react";
+import { Image, View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,10 +11,11 @@ import ProfileScreen from "../screens/profile/ProfileScreen";
 import SettingsScreen from "../screens/settings/SettingsScreen";
 import Login from "../screens/auth/Login";
 import Signup from "../screens/auth/Signup";
-import { ActivityIndicator, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { useTheme } from '../styles/ThemeContext'; // Import the useTheme hook
-import { Feather } from '@expo/vector-icons'; // Import Feather icons
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { useTheme } from '../styles/ThemeContext';
+import { Feather } from '@expo/vector-icons';
+import image from './samplePFP.png';
+
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -56,13 +57,21 @@ function MainTabs() {
 export default function AppNavigator() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { styles } = useTheme(); 
+  const { styles } = useTheme();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = await AsyncStorage.getItem("authToken");
-        setIsAuthenticated(!!token);
+        const userInfo = await AsyncStorage.getItem("userInfo");
+
+        if (token && userInfo) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          await AsyncStorage.removeItem("authToken");
+          await AsyncStorage.removeItem("userInfo");
+        }
       } catch (error) {
         console.error("Failed to check authentication:", error);
         setIsAuthenticated(false);
@@ -87,7 +96,7 @@ export default function AppNavigator() {
       <NavigationContainer>
         {isAuthenticated ? (
           <Drawer.Navigator
-            screenOptions={{
+            screenOptions={({ navigation }) => ({
               drawerStyle: {
                 backgroundColor: styles.container.backgroundColor,
               },
@@ -97,7 +106,18 @@ export default function AppNavigator() {
                 backgroundColor: styles.container.backgroundColor,
               },
               headerTintColor: styles.text.color,
-            }}
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Profile')}
+                  style={{ marginRight: 15 }}
+                >
+                  <Image
+                    source={image} 
+                    style={{ width: 30, height: 30, borderRadius: 40 }}
+                  />
+                </TouchableOpacity>
+              ),
+            })}
           >
             <Drawer.Screen
               name="Home"

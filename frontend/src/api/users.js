@@ -1,3 +1,4 @@
+import apiClient from './client';
 import unauthenticatedClient from './unauthenticatedClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -33,6 +34,22 @@ export const loginUser = async (email, password) => {
       console.error('Error logging in:', error.response.data);
     } else {
       console.error('Error logging in:', error.message);
+    }
+    throw error;
+  }
+};
+
+export const getUser = async (userId) => {
+  try {
+    const response = await apiClient.get(`/user_profile/${userId}`);
+    console.log('getUser response:', response.data);
+    await AsyncStorage.setItem('userInfo', JSON.stringify(response.data));
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error('Error fetching user profile:', error.response.data);
+    } else {
+      console.error('Error fetching user profile:', error.message);
     }
     throw error;
   }

@@ -18,15 +18,22 @@ const Login = ({ setIsAuthenticated }) => {
     try {
       const response = await loginUser(email, password);
       console.log('Login successful:', response);
-    
-      await AsyncStorage.setItem('authToken', response.token);
-      
-      setIsAuthenticated(true);
+  
+      // Verify that response.token and response.user[0] are defined
+      if (response.token && response.user && response.user[0]) {
+        await AsyncStorage.setItem('authToken', response.token);
+        await AsyncStorage.setItem('userInfo', JSON.stringify(response.user[0]));
+        setIsAuthenticated(true);
+      } else {
+        throw new Error('Invalid response structure');
+      }
     } catch (error) {
       console.error('Login failed:', error);
       Alert.alert('Login Error', 'Invalid email or password');
     }
   };
+  
+  
 
   return (
     <SafeAreaView style={[styles.container, localStyle.container]}>

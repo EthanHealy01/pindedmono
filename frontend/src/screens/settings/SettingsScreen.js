@@ -14,7 +14,7 @@ const SettingsScreen = ({ setIsAuthenticated }) => {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('authToken');
+    await AsyncStorage.clear()
     setIsAuthenticated(false);
   };
 
